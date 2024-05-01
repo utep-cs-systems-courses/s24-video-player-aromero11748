@@ -1,0 +1,24 @@
+#! /usr/bin/env python3
+import queue
+import threading
+import time
+
+def blockingQ(capacity):
+    emptyS = threading.Semaphore(capacity)
+    fullS = threading.Semaphore(capacity)
+    conventionalQ = queue.Queue(capacity)
+    Qlock = threading.Lock()
+    
+    def putItem(n):
+        emptyS.acquire()
+        Qlock.acquire()
+        conventionalQ.put(n)
+        Qlock.release()
+        fullS.release()
+        
+    def getItem():
+        fullS.acquire()
+        Qlock.acquire()
+        item = conventionalQ.get()
+        Qlock.release()
+        emptyS.release()
